@@ -45,19 +45,52 @@ const createNewId = () => {
 
 app.use(express.json());
 
+
+app.delete("/products", (request, response) =>{
+    const { id } = request.body;
+    
+    //Check for missing parameters
+    if (!id) {response.status(400).json({ message: "id is required"}); return;}
+
+    //Check for correct types
+    if (typeof id !== 'number') {response.status(400).json({ message: "id must be a number"}); return;}
+
+
+    
+
+    //Check if product exists
+    const products = readProducts();
+    const productIndex = products.findIndex(item => item.id === id);
+
+    if (productIndex !== -1){
+        products.splice(productIndex, 1);
+        writeProducts(products);
+        console.log(`[DELETE] Deleted product id = ${id}`);
+        response.sendStatus(200);
+        return;
+    }
+    response.status(400).json({message: `product with id ${id} doesn't exist`});
+    return;
+    
+    
+
+    
+
+});
+
 app.post("/products", (request, response) => {
     const { name, price, stock } = request.body;
 
     //Check for missing parameters
-    if (!name) {response.status(400).json({ message: "Name is required"}); return;}
-    if (!price) {response.status(400).json({ message: "Price is required"}); return;}
-    if (!stock) {response.status(400).json({ message: "Stock is required"}); return;}
+    if (!name) {response.status(400).json({ message: "name is required"}); return;}
+    if (!price) {response.status(400).json({ message: "price is required"}); return;}
+    if (!stock) {response.status(400).json({ message: "stock is required"}); return;}
 
     //Check for correct types
 
-    if (typeof price !== 'number') { response.status(400).json({ message: "Price must be a number" }); return; }
-    if (typeof stock !== 'number') { response.status(400).json({ message: "Stock must be a number" }); return; }
-    if (typeof name !== 'string') { response.status(400).json({ message: "Name must be a string" }); return; }
+    if (typeof price !== 'number') { response.status(400).json({ message: "price must be a number" }); return; }
+    if (typeof stock !== 'number') { response.status(400).json({ message: "stock must be a number" }); return; }
+    if (typeof name !== 'string') { response.status(400).json({ message: "name must be a string" }); return; }
 
     //Check if product is in the database
 
@@ -88,24 +121,24 @@ app.post("/products", (request, response) => {
     return;
 
     
-})
+});
 
 app.post("/cart", (request, response) => {
     const { productId, quantity=1 } = request.body;
 
     //Check for missing parameters
     if(!productId){
-        response.status(400).json({ message: "Product Id is required"});
+        response.status(400).json({ message: "product Id is required"});
         return;
     }
 
     //Check for correct types
-    if (typeof productId !== 'number') { response.status(400).json({ message: "ProductId must be a number" }); return; }
-    if (typeof quantity !== 'number') { response.status(400).json({ message: "Quantity must be a number" }); return; }
+    if (typeof productId !== 'number') { response.status(400).json({ message: "productId must be a number" }); return; }
+    if (typeof quantity !== 'number') { response.status(400).json({ message: "quantity must be a number" }); return; }
 
-    //Check if quantity isn't a negative number
-    if(quantity < 0){
-        response.status(400).json({ message: "Quantity must be higher than 0"});
+    //Check if quantity isn't less than 0
+    if(quantity <= 0){
+        response.status(400).json({ message: "quantity must be higher than 0"});
         return;
     }
     
@@ -125,12 +158,12 @@ app.post("/cart", (request, response) => {
                 writeCart(cart);
                 console.log(`[POST] Found product in cart id ${product.id}. Added to its quantity by ${quantity}`);
                 
-                //Substract from products stock the quantity amount
+                //Subtract from products stock the quantity amount
             
                 product.stock -= quantity;
                 writeProducts(products);
 
-                console.log(`[POST] Substracted products stock by ${quantity}`);
+                console.log(`[POST] Subtracted products stock by ${quantity}`);
 
                 response.sendStatus(201);
                 return;
@@ -147,17 +180,17 @@ app.post("/cart", (request, response) => {
             writeCart(cart);
             console.log(`[POST] Added ProductId= ${productId} Quantity= ${quantity} to cart`);
 
-            //Substract from products stock the quantity amount
+            //Subtract from products stock the quantity amount
             
             product.stock -= quantity;
             writeProducts(products);
 
-            console.log(`[POST] Substracted products stock by ${quantity}`);
+            console.log(`[POST] Subtracted products stock by ${quantity}`);
 
             response.sendStatus(201);
             return;
         } else {
-            response.status(400).json({message: "Quantity amount is higher than stock amount"})
+            response.status(400).json({message: "quantity amount is higher than stock amount"})
             return;
         }
 
@@ -170,7 +203,7 @@ app.post("/cart", (request, response) => {
     
 
 
-})
+});
 
 app.get("/products/:id", (request, response) => {
     let fetchedProduct = fetchProductById(parseInt(request.params.id));
@@ -180,20 +213,20 @@ app.get("/products/:id", (request, response) => {
         response.sendStatus(404);
     }
     
-})
+});
 
 app.get("/products/", (request, response) => {
     response.send(readProducts());
-})
+});
 
 app.get("/cart", (request, response) => {
     response.send(readCart());
-})
+});
 
 app.get("/", (request, response) => {
     response.send({ message: "Hello World!"});
-})
+});
 
 app.listen(PORT, () => {
     console.log(`Sever started on port ${PORT}`);
-})
+});

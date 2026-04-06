@@ -1,11 +1,5 @@
 [
   {
-    "id": 1,
-    "name": "Apple",
-    "price": 1.5,
-    "stock": 11
-  },
-  {
     "id": 2,
     "name": "Headphones",
     "price": 79.99,
