@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Apple",
+    "price": 1.5,
+    "stock": 11
+  },
+  {
+    "id": 2,
+    "name": "Headphones",
+    "price": 79.99,
+    "stock": 5
+  },
+  {
+    "id": 3,
+    "name": "Coffee",
+    "price": 4.25,
+    "stock": 20
+  },
+  {
+    "id": 4,
+    "name": "Keyboard",
+    "price": 49.99,
+    "stock": 8
+  },
+  {
+    "id": 5,
+    "name": "Water bottle",
+    "price": 2.99,
+    "stock": 12
+  }
+]
