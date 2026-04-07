@@ -45,18 +45,10 @@ const createNewId = () => {
 
 app.use(express.json());
 
+//##################################### PRODUCT API
 
-app.delete("/products", (request, response) =>{
-    const { id } = request.body;
-    
-    //Check for missing parameters
-    if (!id) {response.status(400).json({ message: "id is required"}); return;}
-
-    //Check for correct types
-    if (typeof id !== 'number') {response.status(400).json({ message: "id must be a number"}); return;}
-
-
-    
+app.delete("/products/:id", (request, response) =>{
+    const id = parseInt(request.params.id);    
 
     //Check if product exists
     const products = readProducts();
@@ -123,6 +115,44 @@ app.post("/products", (request, response) => {
     
 });
 
+app.get("/products/:id", (request, response) => {
+    let fetchedProduct = fetchProductById(parseInt(request.params.id));
+    if (fetchedProduct){
+        response.send(fetchedProduct);
+    } else { 
+        response.sendStatus(404);
+    }
+    
+});
+
+app.get("/products/", (request, response) => {
+    response.send(readProducts());
+});
+
+
+//################################## CART API
+
+
+app.delete("/cart/:id", (request, response) => {
+    const id = parseInt(request.params.id);
+
+    //Check if product is in cart
+    const cart= readCart();
+    const cartIndex = cart.findIndex( item => item.productId === id);
+
+    if (cartIndex !== -1){
+        cart.splice(cartIndex, 1);
+        writeCart(cart);
+        console.log(`[DELETE] Deleted cart id = ${id}`);
+        response.sendStatus(200);
+        return;
+    }
+    response.status(400).json({message: `cart with product id ${id} doesn't exist`});
+    return;
+    
+})
+
+
 app.post("/cart", (request, response) => {
     const { productId, quantity=1 } = request.body;
 
@@ -152,7 +182,7 @@ app.post("/cart", (request, response) => {
             const cart = readCart();
 
             //If product already in cart add to its quantity
-            const cartEntry = cart.find( item => item.productId === product.id && item.price === product.price);
+            const cartEntry = cart.find( item => item.productId === product.id);
             if (cartEntry){
                 cartEntry.quantity += quantity;
                 writeCart(cart);
@@ -172,9 +202,8 @@ app.post("/cart", (request, response) => {
 
             const cartItem: CartItem = {
                 productId: product.id,
-                name: product.name,
-                quantity: quantity,
-                price: product.price
+                quantity: quantity
+                
             }
             cart.push(cartItem);
             writeCart(cart);
@@ -190,7 +219,7 @@ app.post("/cart", (request, response) => {
             response.sendStatus(201);
             return;
         } else {
-            response.status(400).json({message: "quantity amount is higher than stock amount"})
+            response.status(400).json({message: "quantity amount is lower than stock amount"})
             return;
         }
 
@@ -205,23 +234,13 @@ app.post("/cart", (request, response) => {
 
 });
 
-app.get("/products/:id", (request, response) => {
-    let fetchedProduct = fetchProductById(parseInt(request.params.id));
-    if (fetchedProduct){
-        response.send(fetchedProduct);
-    } else { 
-        response.sendStatus(404);
-    }
-    
-});
-
-app.get("/products/", (request, response) => {
-    response.send(readProducts());
-});
 
 app.get("/cart", (request, response) => {
     response.send(readCart());
 });
+
+
+
 
 app.get("/", (request, response) => {
     response.send({ message: "Hello World!"});

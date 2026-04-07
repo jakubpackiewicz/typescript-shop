@@ -1,21 +1,15 @@
 [
   {
-    "id": 2,
-    "name": "Headphones",
-    "price": 79.99,
-    "stock": 5
-  },
-  {
     "id": 3,
     "name": "Coffee",
-    "price": 4.25,
-    "stock": 20
+    "price": 5.25,
+    "stock": 17
   },
   {
     "id": 4,
     "name": "Keyboard",
     "price": 49.99,
-    "stock": 8
+    "stock": 7
   },
   {
     "id": 5,
